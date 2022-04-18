@@ -1,21 +1,26 @@
 import { display } from "./display";
+import { Manager } from "./manager";
 
 function Todo(name, priority, notes, id, dueDate = null, status = false)
-{   
+{
     function editTask(newName, newNotes, newPriority) {
         this.name = newName;
         this.notes = newNotes;
         this.priority = newPriority;
     }
 
-    return({name, notes, dueDate, id, priority, status, editTask});
+    function changeStatus() {
+        this.status = !this.status;
+    }
+
+    return({name, notes, dueDate, id, priority, status, editTask, changeStatus});
 }
 
 function Project(name)
 {
     let todos = [];
-    let id = null;
-    let ids = 0;
+    let id = null; // ID of the project.
+    let ids = 0; // IDs for the tasks of the project.
 
     function addTask(task, priority, notes) {
         let newTask = Todo(task, priority, notes);
@@ -37,8 +42,9 @@ function Project(name)
     function clearData() {
         todos = [];
         id = null;
-    }
+    };
 
+    // Retrieves the task with the given ID.
     function getTask(id) {
         for(let i = 0; i < todos.length; i++)
         {
@@ -47,10 +53,10 @@ function Project(name)
         }
     }
 
-    function editTask(name, notes, priority, id)
+    function editTask(name, notes, priority)
     {
-        getTask(id).editTask(name, notes, priority);
-        display.editTaskTile(getTask(id));
+        Manager.getActiveTask().editTask(name, notes, priority);
+        display.editTaskTile();
     }
 
     return {name, todos, id, addTask, deleteTask, edit, clearData, editTask, getTask};

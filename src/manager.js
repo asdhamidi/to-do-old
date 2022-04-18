@@ -4,8 +4,11 @@ import {display} from "./display";
 let Manager = (() => {
     let projects = [];
 
-    let current = null;
+    // Currently selected.
+    let activeProject = null;
+    let activeTask = null;
 
+    // IDs assigned to each project.
     let ids = 0;
 
     function addProject(name) {
@@ -13,7 +16,7 @@ let Manager = (() => {
         newProj.id = ids++;
 
         projects.push(newProj)
-        changeCurrent(newProj.id);
+        setActiveProject(newProj.id);
 
         display.loadNewProject(newProj);
         display.newActiveProject(newProj.id);
@@ -22,12 +25,13 @@ let Manager = (() => {
     function loadProject(id) {
         display.loadProject(getProject(id));
         display.newActiveProject(id);
-        changeCurrent(id);
+        setActiveProject(id);
     };
 
     function deleteProject(p) { 
         projects = projects.filter(proj => proj.name != p.name);
 
+        setActiveProject(null);
         display.deleteProject(p.name);
     };
 
@@ -39,11 +43,11 @@ let Manager = (() => {
         getProject(id).edit(name);
     };
 
-    function changeCurrent(id) { 
+    function setActiveProject(id) { 
         if(id != null)
-        current = getProject(id) 
+        activeProject = getProject(id) 
         else
-        current = id;
+        activeProject = id;
     };
 
     function getProject(ID)
@@ -53,33 +57,48 @@ let Manager = (() => {
         return projects[i];
     };
 
-    function getCurrent() {
-        return current;
+    function getActiveProject() {
+        return activeProject;
     };
     
     function deleteTask(task, node) {
-        getCurrent().deleteTask(task, node);
+        getActiveProject().deleteTask(task, node);
     };
 
     function addTask(name, priority, notes) {
-        getCurrent().addTask(name, priority, notes);
+        getActiveProject().addTask(name, priority, notes);
     };
 
-    function editTask(name, notes, priority, task) {
-        getCurrent().editTask(name, notes, priority, task)
+    function editTask(name, notes, priority) {
+        getActiveProject().editTask(name, notes, priority)
     }
+
+    function getActiveTask() {
+        return activeTask;
+    }
+
+    function setActiveTask(id) {
+        activeTask = getActiveProject().getTask(id);
+    };
+
+    function changeTaskStatus() {
+        getActiveTask().changeStatus();
+    }
+
     return {
         addProject,
         deleteProject,
         loadProject,
         editProject,
         getProject,
-        getCurrent,
-        changeCurrent,
+        getActiveProject,
+        getActiveTask,
+        setActiveTask,
         getTasks,
         addTask,
         deleteTask,
-        editTask
+        editTask, 
+        changeTaskStatus
     }
 })();
 

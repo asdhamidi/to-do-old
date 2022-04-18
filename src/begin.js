@@ -1,18 +1,20 @@
 import {display} from "./display";
 import {Manager} from "./manager";
 
+// Starts the app.
 export function begin() {
     display.begin();
     loadUp();
 }
 
+// Loads default dummy data.
 function loadUp() {
     Manager.addProject("Home");
     fillUp();
 }
 
 function fillUp() {
-    let current = Manager.getCurrent();
+    let current = Manager.getActiveProject();
     let tasks = ["Learn Programming", "Create websites", "Make Money", "Do weird things with money"];
     let colors = ["red", "green", "orange"];
     for(let i = 0; i < 4; i++)

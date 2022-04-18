@@ -404,7 +404,7 @@ nav {
 }
 
 .task-pane .add-button {
-    width: 100%;
+    width: 25%;
     align-self: center;
 }
 .add-button:hover {
@@ -482,10 +482,16 @@ h1 {
 }
 
 .edit-task-modal {
-    min-width: 25rem;
+    width: auto;
+    height: auto;
+    left: 30vw;
+    min-height: 40vh;
+    min-width: 35rem;
+    max-width: 50rem;
+    padding: 0;
     flex-direction: row;
     align-items: center;
-    justify-content: stretch;
+    justify-content: center;
 }
 .edit-project-modal .modal-data, .edit-task-modal .modal-data{
     width: 100%;
@@ -497,6 +503,7 @@ h1 {
 
 .edit-task-modal .modal-data {
     display: block;
+    flex: 1;
 }
 
 .edit-project-modal .modal-buttons, .edit-task-modal .modal-buttons{

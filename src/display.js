@@ -135,6 +135,7 @@ let display = (() => {
         taskButtons.appendChild(taskModalModifications(modal));
     }
 
+    // Adds needed input fields to the template modal.
     function taskModalModifications(modal) {
         let notes = document.createElement("div");
         notes.className = "notes";
@@ -177,6 +178,7 @@ let display = (() => {
     
     // Closes All Active Modal.
     function closeModal() {
+        clearForm()
         document.querySelector(".task-modal").classList.remove("modal-active");
         document.querySelector(".project-modal").classList.remove("modal-active");
         document.querySelector(".edit-project-modal").classList.remove("edit-modal-active");
@@ -217,6 +219,7 @@ let display = (() => {
         document.querySelector(".blur-bg").classList.toggle("blur-active");
     }
 
+    // Project Editor Closer.
     function closeProjectEditor() {
         document.querySelector(".edit-project-modal").classList.remove("edit-modal-active");
         document.querySelector(".blur-bg").classList.remove("blur-active");
@@ -234,18 +237,21 @@ let display = (() => {
         document.querySelector(".blur-bg").classList.toggle("blur-active");
     }
 
+    // Task Editor closer.
     function closeTaskEditor() {
         document.querySelector(".edit-task-modal").classList.remove("edit-modal-active");
         document.querySelector(".blur-bg").classList.remove("blur-active");
     }
     
+    // Closes all editor.
     function closeEditors() {
         closeProjectEditor();
         closeTaskEditor();
-        clearForm();
         clearButtons();
         document.querySelector(".blur-bg").classList.remove("blur-active");
     }
+
+    // Adds the blur background used during editor popups.
     function addBlurBg() {
         let blur = document.createElement("div");
         blur.className = "blur-bg";
@@ -314,7 +320,17 @@ let display = (() => {
 
         let check = document.createElement("INPUT");
         check.setAttribute("type", "checkbox");
+        if(task.status)
+        {
+            tile.classList.add("done");
+            check.checked = true;
+        }
+        else
+        check.checked = false;
+
         check.onclick = (e) => {
+            Manager.setActiveTask(task.id);
+            Manager.changeTaskStatus();
             tile.classList.toggle("done");
         };
         priority.appendChild(check);
@@ -336,9 +352,11 @@ let display = (() => {
         edit.src = editButton;
         edit.className = "edit";
         edit.onclick = () => {
+            Manager.setActiveTask(task.id);
             openTaskEditModal();
             fillTaskEditModal(task.id);
             dynamicEventListeners(task.id);
+            
         }
         taskButtons.appendChild(edit);
 
@@ -361,12 +379,13 @@ let display = (() => {
     //*********************************************************************************************
     // Helper Functions
 
-    // Loading Projects
+    // Loads New Projects.
     function loadNewProject(project) {
         newProjectTile(project);
         loadTasks(project.todos);
     };
 
+    // Loads already exisitng projects.
     function loadProject(project) {
         if(project != null)
         loadTasks(project.todos);
@@ -379,7 +398,6 @@ let display = (() => {
                 if (proj.classList.contains("project-tile") && proj.firstChild.textContent == name) {
                     clearTaskPane();
                     projectTiles.removeChild(proj);
-                    Manager.changeCurrent(null);
                 }
             });
         }
@@ -393,18 +411,21 @@ let display = (() => {
         clearForm();
     };
 
+    // Edits the UI Project tile.
     function editProject(id, name) {
         let projectTile = document.getElementById(id);
         projectTile.querySelector(".project-name").textContent = name;
     }
 
+    // Fills the project edit modal with the details of selected project.
     function fillProjectEditModal(id) {
         let name = Manager.getProject(id).name;
         document.querySelector(".edit-project-modal > .modal-data > input").value = name;
     }
-
+    
+    // Fills the task edit modal with the details of selected task.
     function fillTaskEditModal(id) {
-        let task = Manager.getCurrent().getTask(id);
+        let task = Manager.getActiveTask();
         document.querySelector(".edit-task-modal > .modal-data > input").value = task.name;
         document.querySelector(".edit-task-modal > .modal-data > .notes > .notes-input-field").value = task.notes;
         let priority = task.priority;
@@ -471,12 +492,15 @@ let display = (() => {
         });
     };
 
+    // Highlights the selected project.
     function newActiveProject(id) {
         removeActive();
         document.getElementById(id).classList.toggle("active");
     }
 
-    function editTaskTile(task) {
+    // Edits the UI Task Tile after edits in the storage.
+    function editTaskTile() {
+        let task = Manager.getActiveTask();
         for(let i = 0; i < taskTiles.childNodes.length; i++) {
             let node = taskTiles.childNodes[i];
             if(node.classList.contains("task-tile") && node.getAttribute('task-id') == task.id)
@@ -509,12 +533,13 @@ let display = (() => {
         clearButtons();
     };
 
+    // Event listeners for submit buttons and priority button selections.
     function dynamicEventListeners(subject = null) {
         document.querySelector(".edit-project-modal > .modal-buttons > .tick").addEventListener("click", () => {
             let newName = document.querySelector(".edit-project-modal > .modal-data > input").value;
             Manager.editProject(subject.id, newName);
-            closeProjectEditor();
-            clearForm();
+            closeEditors();
+            return;
         });
 
         document.querySelector(".edit-task-modal > .modal-buttons > .tick").addEventListener("click", () => {
@@ -523,9 +548,10 @@ let display = (() => {
             let newPriority = document.querySelector(".priority > .btn-active").classList[0];
 
 
-            Manager.editTask(newName, newNotes, newPriority, subject);
+            Manager.editTask(newName, newNotes, newPriority);
             clearButtons();
             closeEditors();
+            return;
         });
 
         document.querySelectorAll(".priority > div").forEach(btn => {
@@ -534,6 +560,7 @@ let display = (() => {
                 btn.style.backgroundColor = btn.className;
                 btn.style.color = "white";
                 btn.classList.add("btn-active");
+                return;
             });
         });
     };
